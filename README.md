@@ -1,16 +1,23 @@
 # 📚 API CRUD de Libros - Flask
 
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-2.3.3-green.svg)](https://flask.palletsprojects.com/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0.21-red.svg)](https://www.sqlalchemy.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-JavierMPlata-black.svg)](https://github.com/JavierMPlata)
+
 Una API REST completa desarrollada con Flask para gestionar libros, implementando operaciones CRUD (Create, Read, Update, Delete) con una arquitectura modular y escalable.
 
 ## 🚀 Características
 
 - ✅ **API REST completa** con operaciones CRUD
 - 📖 **Gestión de libros** (título, autor, fecha de publicación)
-- 🏗️ **Arquitectura modular** separando responsabilidades
-- 🔧 **Configuración flexible** para diferentes entornos
-- 📝 **Validación de datos** robusta
-- 🎯 **Respuestas JSON** consistentes
+- 🏗️ **Arquitectura modular** con separación de responsabilidades (MVC + Service/Repository)
+- �️ **Integración con SQLAlchemy** para manejo de base de datos
+- 📝 **Validación de datos** robusta con modelos tipados
+- 🎯 **Respuestas JSON** consistentes y estructuradas
 - 📊 **Manejo de errores** centralizado
+- 🔧 **Configuración flexible** para diferentes entornos de desarrollo
 
 ## 📋 Tabla de Contenidos
 
@@ -20,8 +27,12 @@ Una API REST completa desarrollada con Flask para gestionar libros, implementand
 - [Uso](#uso)
 - [Endpoints de la API](#endpoints-de-la-api)
 - [Ejemplos de Uso](#ejemplos-de-uso)
+- [Manejo de Errores](#manejo-de-errores)
 - [Tecnologías](#tecnologías)
+- [Testing](#testing)
+- [Despliegue](#despliegue)
 - [Contribución](#contribución)
+- [Roadmap](#roadmap)
 
 ## 🛠️ Instalación
 
@@ -56,7 +67,7 @@ pip install -r requirements.txt
 
 4. **Ejecuta la aplicación:**
 ```bash
-python src/app.py
+python main.py
 ```
 
 La aplicación estará disponible en `http://localhost:5000`
@@ -65,33 +76,41 @@ La aplicación estará disponible en `http://localhost:5000`
 
 ```
 CRUD-FLASK/
-├── config/                 # Configuraciones de la aplicación
-│   ├── database.py        # Configuración de base de datos y entornos
-│   └── __pycache__/
-├── controllers/           # Controladores - manejo de rutas HTTP
-│   ├── book_controller.py # Controlador de libros
-│   └── __pycache__/
-├── models/               # Modelos de datos
-│   ├── book.py          # Modelo Book
-│   └── __pycache__/
-├── services/            # Lógica de negocio
-│   ├── book_service.py  # Servicios de libros
-│   └── __pycache__/
-├── src/                 # Aplicación principal
-│   └── app.py          # Punto de entrada de Flask
+├── config/                   # Configuraciones de la aplicación
+│   ├── __init__.py          # Inicialización del módulo
+│   ├── database.py          # Configuración de base de datos
+│   └── __pycache__/         # Archivos compilados de Python
+├── controllers/             # Controladores - manejo de rutas HTTP
+│   ├── __init__.py         # Inicialización del módulo
+│   ├── book_controller.py  # Controlador de libros
+│   └── __pycache__/        # Archivos compilados de Python
+├── models/                 # Modelos de datos con SQLAlchemy
+│   ├── __init__.py        # Inicialización del módulo
+│   ├── book_model.py      # Modelo Book con definición de tabla
+│   └── __pycache__/       # Archivos compilados de Python
+├── repositories/          # Capa de acceso a datos
+│   ├── __init__.py       # Inicialización del módulo
+│   ├── book_repository.py # Repositorio de libros (CRUD operations)
+│   └── __pycache__/      # Archivos compilados de Python
+├── services/             # Lógica de negocio
+│   ├── __init__.py      # Inicialización del módulo
+│   ├── book_service.py  # Servicios de negocio para libros
+│   └── __pycache__/     # Archivos compilados de Python
+├── main.py              # Punto de entrada principal de la aplicación
 ├── requirements.txt     # Dependencias del proyecto
-├── README.md           # Documentación
+├── README.md           # Documentación del proyecto
 └── LICENSE            # Licencia del proyecto
 ```
 
 ### Arquitectura
 
-El proyecto sigue el patrón **MVC (Model-View-Controller)** adaptado para APIs:
+El proyecto sigue una **arquitectura en capas** con separación clara de responsabilidades:
 
-- **Models**: Definen la estructura de datos y validaciones
-- **Controllers**: Manejan las peticiones HTTP y respuestas
-- **Services**: Contienen la lógica de negocio
-- **Config**: Configuraciones para diferentes entornos
+- **Models**: Definen la estructura de datos y mapeo con SQLAlchemy
+- **Controllers**: Manejan las peticiones HTTP y respuestas (capa de presentación)
+- **Services**: Contienen la lógica de negocio y validaciones
+- **Repositories**: Capa de acceso a datos y operaciones de base de datos
+- **Config**: Configuraciones para base de datos y diferentes entornos
 
 ## ⚙️ Configuración
 
@@ -117,7 +136,7 @@ CORS_ENABLED=True             # Habilitar CORS
 ### Iniciar la aplicación
 
 ```bash
-python src/app.py
+python main.py
 ```
 
 El servidor se iniciará en `http://localhost:5000`
@@ -265,7 +284,9 @@ La API maneja varios tipos de errores:
 
 ## 🔧 Tecnologías
 
-- **[Flask](https://flask.palletsprojects.com/)**: Framework web de Python
+- **[Flask](https://flask.palletsprojects.com/)**: Framework web minimalista de Python
+- **[SQLAlchemy](https://www.sqlalchemy.org/)**: ORM para Python y manejo de base de datos
+- **[PyMySQL](https://pypi.org/project/PyMySQL/)**: Conector MySQL para Python
 - **Python 3.8+**: Lenguaje de programación
 - **JSON**: Formato de intercambio de datos
 - **RESTful API**: Arquitectura de servicios web
@@ -277,6 +298,37 @@ Flask==2.3.3
 python-dotenv==1.0.0
 SQLAlchemy==2.0.21
 PyMySQL==1.1.0
+```
+
+## 🧪 Testing
+
+Para ejecutar la aplicación en modo de desarrollo:
+
+```bash
+# Activar el entorno virtual
+# Windows
+venv\Scripts\activate
+
+# Ejecutar en modo debug
+set FLASK_ENV=development
+python main.py
+```
+
+## 🚀 Despliegue
+
+### Requisitos para producción
+
+- Python 3.8+
+- Base de datos MySQL (recomendado para producción)
+- Servidor web (Gunicorn, uWSGI)
+
+### Configuración para producción
+
+```bash
+# Variables de entorno recomendadas
+export FLASK_ENV=production
+export FLASK_DEBUG=False
+export SECRET_KEY=your-super-secret-production-key
 ```
 
 
