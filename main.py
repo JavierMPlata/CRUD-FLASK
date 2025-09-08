@@ -1,5 +1,16 @@
 from flask import Flask
+import logging
 from controllers.book_controller import book_bp
+
+# Configurar logging para mostrar peticiones HTTP
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s:%(name)s:%(message)s'
+)
+
+# Silenciar SQLAlchemy pero mantener werkzeug
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('werkzeug').setLevel(logging.INFO)
 
 app = Flask(__name__)
 

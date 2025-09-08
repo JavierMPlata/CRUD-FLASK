@@ -6,7 +6,19 @@ from sqlalchemy.exc import OperationalError
 from models.book_model import Base
 from dotenv import load_dotenv
 
-logging.basicConfig(level=logging.INFO)
+# Configurar logging para mostrar solo peticiones HTTP
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s:%(name)s:%(message)s'
+)
+
+# Silenciar logs de SQLAlchemy
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.dialects').setLevel(logging.WARNING)
+
+# Asegurar que werkzeug muestre las peticiones HTTP
+logging.getLogger('werkzeug').setLevel(logging.INFO)
 
 load_dotenv()
 
@@ -16,7 +28,7 @@ SQLITE_URI = "sqlite:///books.db"
 def get_engine():
     if MYSQL_URI:
         try:
-            engine = create_engine(MYSQL_URI, echo=True)
+            engine = create_engine(MYSQL_URI)  # Removed echo=True
             # Test connection
             conn = engine.connect()
             conn.close()
@@ -25,7 +37,7 @@ def get_engine():
         except OperationalError:
             logging.warning("MySQL connection failed, falling back to SQLite.")
         
-    engine = create_engine(SQLITE_URI, echo=True)
+    engine = create_engine(SQLITE_URI)  # Removed echo=True
     return engine
 
 engine = get_engine()
