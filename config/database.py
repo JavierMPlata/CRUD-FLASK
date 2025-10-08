@@ -3,7 +3,6 @@ import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError
-from models.book_model import Base
 from dotenv import load_dotenv
 
 # Configurar logging para mostrar solo peticiones HTTP
@@ -23,7 +22,7 @@ logging.getLogger('werkzeug').setLevel(logging.INFO)
 load_dotenv()
 
 MYSQL_URI = os.getenv("MYSQL_URI")  
-SQLITE_URI = "sqlite:///books.db"
+SQLITE_URI = "sqlite:///books_users.db"  # Actualizado para incluir usuarios
 
 def get_engine():
     if MYSQL_URI:
@@ -42,7 +41,6 @@ def get_engine():
 
 engine = get_engine()
 Session = sessionmaker(bind=engine)
-Base.metadata.create_all(engine)
 
 def get_db_session():  # Changed from get_session to match your import
     return Session()

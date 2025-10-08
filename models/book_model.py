@@ -1,25 +1,22 @@
 from typing import Optional, Dict, Any
 from datetime import datetime
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship, declarative_base
+from models.db import db
 
-Base = declarative_base()
-
-class Book(Base):
+class Book(db.Model):
     __tablename__ = "books"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(100), nullable=False)
-    author = Column(String(100), nullable=False)
-    published_date = Column(String(100), nullable=True)
-    editorials = Column(String(100), nullable=True)
-    gender = Column(String(100), nullable=True)
-    language = Column(String(100), nullable=True)
-    pages = Column(String(100), nullable=True)
-    isbn = Column(String(100), nullable=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(100), nullable=False)
+    author = db.Column(db.String(100), nullable=False)
+    published_date = db.Column(db.String(100), nullable=True)
+    editorials = db.Column(db.String(100), nullable=True)
+    gender = db.Column(db.String(100), nullable=True)
+    language = db.Column(db.String(100), nullable=True)
+    pages = db.Column(db.Integer, nullable=True)
+    isbn = db.Column(db.String(100), nullable=True)
 
 
-    def __init__(self, title: str, author: str, published_date: Optional[str] = None, editorials: Optional[str] = None, gender: Optional[str] = None, language: Optional[str] = None, pages: Optional[str] = None, isbn: Optional[str] = None):
+    def __init__(self, title: str, author: str, published_date: Optional[str] = None, editorials: Optional[str] = None, gender: Optional[str] = None, language: Optional[str] = None, pages: Optional[int] = None, isbn: Optional[str] = None):
         self.title = title
         self.author = author
         self.published_date = self._parse_date(published_date) if published_date else datetime.now()
@@ -52,7 +49,7 @@ class Book(Base):
             "isbn": self.isbn
         }
 
-    def update(self, title: Optional[str] = None, author: Optional[str] = None, published_date: Optional[str] = None, editorials: Optional[str] = None, gender: Optional[str] = None, language: Optional[str] = None, pages: Optional[str] = None, isbn: Optional[str] = None):
+    def update(self, title: Optional[str] = None, author: Optional[str] = None, published_date: Optional[str] = None, editorials: Optional[str] = None, gender: Optional[str] = None, language: Optional[str] = None, pages: Optional[int] = None, isbn: Optional[str] = None):
         if title is not None:
             self.title = title
         if author is not None:
@@ -84,8 +81,8 @@ class Book(Base):
             return "Gender must be a string."
         if "language" in data and not isinstance(data["language"], str):
             return "Language must be a string."
-        if "pages" in data and not isinstance(data["pages"], str):
-            return "Pages must be a string."
+        if "pages" in data and not isinstance(data["pages"], int):
+            return "Pages must be an integer."
         if "isbn" in data and not isinstance(data["isbn"], str):
             return "ISBN must be a string."
         return None

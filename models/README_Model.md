@@ -1,44 +1,75 @@
 # Modelos (Models)
 
-Este módulo (`book_model.py`) define el modelo de datos para la entidad Book utilizando SQLAlchemy ORM. Representa la estructura de datos y las reglas de negocio para los libros en la aplicación.
+Este módulo define los modelos de datos para las entidades Book y User utilizando Flask-SQLAlchemy ORM. Representa la estructura de datos y las reglas de negocio para libros y usuarios en la aplicación.
+
+## Modelos Disponibles
+
+### 1. Book Model (`book_model.py`)
+Modelo para la gestión de libros con características avanzadas de validación y serialización.
+
+### 2. User Model (`user_model.py`)
+Modelo para la gestión de usuarios con validación de credenciales y seguridad.
+
+### 3. Database Configuration (`db.py`)
+Configuración central de Flask-SQLAlchemy para la aplicación.
 
 ## Arquitectura del Modelo
 
-### SQLAlchemy ORM
-- Utiliza SQLAlchemy como ORM (Object-Relational Mapping)
-- Hereda de `declarative_base()` para definición declarativa
+### Flask-SQLAlchemy ORM
+- Utiliza Flask-SQLAlchemy como ORM (Object-Relational Mapping)
+- Hereda de `db.Model` para definición declarativa
 - Mapeo automático entre objetos Python y tablas de base de datos
+- Integración completa con Flask
 
 ### Características del Modelo
 - **Validación de datos**: Métodos integrados para validar información
 - **Serialización**: Conversión automática a diccionarios JSON
-- **Parsing de fechas**: Manejo flexible de formatos de fecha
-- **Actualización parcial**: Método para updates selectivos
+- **Parsing de fechas**: Manejo flexible de formatos de fecha (Book)
+- **Actualización parcial**: Método para updates selectivos (Book)
+- **Seguridad**: Validación de credenciales y exclusión de passwords (User)
+- **Logging**: Sistema de logging integrado para auditoría
 
-## Definición del Modelo
+## Configuración de Base de Datos (`db.py`)
+
+### Importaciones
+```python
+from flask_sqlalchemy import SQLAlchemy
+```
+
+### Instancia Global
+```python
+db = SQLAlchemy()
+```
+
+**Funcionalidad:**
+- Instancia central de Flask-SQLAlchemy
+- Será inicializada por la aplicación Flask principal
+- Proporciona acceso a Column, Integer, String, etc.
+- Maneja la conexión y sesiones de base de datos
+
+## Book Model - Definición del Modelo
 
 ### Importaciones
 ```python
 from typing import Optional, Dict, Any
 from datetime import datetime
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship, declarative_base
+from models.db import db
 ```
 
 ### Estructura de la Tabla
 ```python
-class Book(Base):
+class Book(db.Model):
     __tablename__ = "books"
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(100), nullable=False)
-    author = Column(String(100), nullable=False)
-    published_date = Column(String(100), nullable=True)
-    editorials = Column(String(100), nullable=True)
-    gender = Column(String(100), nullable=True)
-    language = Column(String(100), nullable=True)
-    pages = Column(String(100), nullable=True)
-    isbn = Column(String(100), nullable=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(100), nullable=False)
+    author = db.Column(db.String(100), nullable=False)
+    published_date = db.Column(db.String(100), nullable=True)
+    editorials = db.Column(db.String(100), nullable=True)
+    gender = db.Column(db.String(100), nullable=True)
+    language = db.Column(db.String(100), nullable=True)
+    pages = db.Column(db.Integer, nullable=True)
+    isbn = db.Column(db.String(100), nullable=True)
 ```
 
 **Campos de la tabla:**
@@ -49,16 +80,44 @@ class Book(Base):
 - `editorials`: Editorial del libro, string de máximo 100 caracteres, opcional
 - `gender`: Género literario del libro, string de máximo 100 caracteres, opcional
 - `language`: Idioma del libro, string de máximo 100 caracteres, opcional
-- `pages`: Número de páginas del libro, string de máximo 100 caracteres, opcional
+- `pages`: Número de páginas del libro, **entero**, opcional
 - `isbn`: Código ISBN del libro, string de máximo 100 caracteres, opcional
 
-## Métodos del Modelo
+## User Model - Definición del Modelo
+
+### Importaciones
+```python
+from models.db import db
+import logging
+```
+
+### Estructura de la Tabla
+```python
+class User(db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    password = db.Column(db.String(255), nullable=False)
+```
+
+**Campos de la tabla:**
+- `id`: Clave primaria, entero autoincremental
+- `username`: Nombre de usuario, string de máximo 80 caracteres, único, requerido, indexado
+- `password`: Contraseña del usuario, string de máximo 255 caracteres, requerido
+
+**Características de seguridad:**
+- `unique=True`: Evita usuarios duplicados
+- `index=True`: Optimiza búsquedas por username
+- Contraseña con longitud suficiente para hashing seguro
+
+## Book Model - Métodos del Modelo
 
 ### 1. Constructor `__init__()`
 ```python
 def __init__(self, title: str, author: str, published_date: Optional[str] = None, 
              editorials: Optional[str] = None, gender: Optional[str] = None, 
-             language: Optional[str] = None, pages: Optional[str] = None, 
+             language: Optional[str] = None, pages: Optional[int] = None, 
              isbn: Optional[str] = None):
 ```
 
@@ -75,7 +134,7 @@ def __init__(self, title: str, author: str, published_date: Optional[str] = None
 - `editorials`: Editorial del libro (opcional)
 - `gender`: Género literario del libro (opcional)
 - `language`: Idioma del libro (opcional)
-- `pages`: Número de páginas del libro (opcional)
+- `pages`: Número de páginas del libro (opcional, **entero**)
 - `isbn`: Código ISBN del libro (opcional)
 
 ### 2. Parser de Fechas `_parse_date()`
@@ -113,6 +172,7 @@ def to_dict(self) -> Dict[str, Any]:
 - Convierte la instancia del modelo a diccionario
 - Útil para serialización JSON en APIs
 - Maneja conversión de datetime a string ISO
+- Detecta si la fecha ya es string o datetime
 
 **Retorna:**
 ```json
@@ -124,7 +184,7 @@ def to_dict(self) -> Dict[str, Any]:
     "editorials": "Editorial del libro",
     "gender": "Género literario",
     "language": "Idioma del libro",
-    "pages": "Número de páginas",
+    "pages": 300,
     "isbn": "Código ISBN"
 }
 ```
@@ -134,7 +194,7 @@ def to_dict(self) -> Dict[str, Any]:
 def update(self, title: Optional[str] = None, author: Optional[str] = None, 
            published_date: Optional[str] = None, editorials: Optional[str] = None, 
            gender: Optional[str] = None, language: Optional[str] = None, 
-           pages: Optional[str] = None, isbn: Optional[str] = None):
+           pages: Optional[int] = None, isbn: Optional[str] = None):
 ```
 
 **Funcionalidad:**
@@ -167,7 +227,7 @@ def validate_book_data(data: Dict[str, Any]) -> Optional[str]:
 4. **Tipo de editorial**: Si se proporciona editorial, debe ser string
 5. **Tipo de género**: Si se proporciona género, debe ser string
 6. **Tipo de idioma**: Si se proporciona idioma, debe ser string
-7. **Tipo de páginas**: Si se proporciona páginas, debe ser string
+7. **Tipo de páginas**: Si se proporciona páginas, debe ser **entero**
 8. **Tipo de ISBN**: Si se proporciona ISBN, debe ser string
 
 **Mensajes de error:**
@@ -177,12 +237,86 @@ def validate_book_data(data: Dict[str, Any]) -> Optional[str]:
 - `"Editorials must be a string."`: Cuando la editorial no es string
 - `"Gender must be a string."`: Cuando el género no es string
 - `"Language must be a string."`: Cuando el idioma no es string
-- `"Pages must be a string."`: Cuando las páginas no son string
+- `"Pages must be an integer."`: Cuando las páginas no son **entero**
 - `"ISBN must be a string."`: Cuando el ISBN no es string
+
+## User Model - Métodos del Modelo
+
+### 1. Constructor `__init__()`
+```python
+def __init__(self, username: str, password: str):
+```
+
+**Funcionalidad:**
+- Inicializa una nueva instancia del usuario
+- Asigna username y password directamente
+- Constructor simple y directo
+
+**Parámetros:**
+- `username`: Nombre de usuario (requerido)
+- `password`: Contraseña del usuario (requerido)
+
+### 2. Representación `__repr__()`
+```python
+def __repr__(self):
+```
+
+**Funcionalidad:**
+- Proporciona representación string del objeto
+- Incluye logging de la operación
+- Útil para debugging y desarrollo
+
+**Retorna:**
+```
+<User nombre_usuario>
+```
+
+### 3. Serialización Segura `to_dict()`
+```python
+def to_dict(self):
+```
+
+**Funcionalidad:**
+- Convierte la instancia del usuario a diccionario
+- **Excluye la contraseña por seguridad**
+- Útil para respuestas JSON de API
+
+**Retorna:**
+```json
+{
+    "id": 1,
+    "username": "nombre_usuario"
+}
+```
+
+### 4. Validación Estática `validate_user_data()`
+```python
+@staticmethod
+def validate_user_data(data):
+```
+
+**Funcionalidad:**
+- Valida diccionarios de datos antes de crear/actualizar usuarios
+- Método estático, no requiere instancia
+- Validaciones de seguridad y formato
+
+**Validaciones realizadas:**
+1. **Username requerido**: Verifica que el username exista
+2. **Password requerido**: Verifica que el password exista
+3. **Longitud mínima username**: Mínimo 3 caracteres
+4. **Longitud máxima username**: Máximo 80 caracteres
+5. **Longitud mínima password**: Mínimo 6 caracteres
+
+**Mensajes de error:**
+- `"Username es requerido"`: Cuando falta el username
+- `"Password es requerido"`: Cuando falta el password
+- `"Username debe tener al menos 3 caracteres"`: Username muy corto
+- `"Username no puede exceder 80 caracteres"`: Username muy largo
+- `"Password debe tener al menos 6 caracteres"`: Password muy corto
 
 ## Ejemplos de Uso
 
-### Crear un nuevo libro
+### Book Model - Crear un nuevo libro
 ```python
 # Con todos los campos
 book = Book(
@@ -192,7 +326,7 @@ book = Book(
     editorials="Francisco de Robles",
     gender="Novela",
     language="Español",
-    pages="863",
+    pages=863,
     isbn="978-84-376-0494-7"
 )
 
@@ -208,11 +342,12 @@ book = Book(
     author="Gabriel García Márquez",
     published_date="1967-05-30",
     editorials="Editorial Sudamericana",
-    language="Español"
+    language="Español",
+    pages=417
 )
 ```
 
-### Validar datos antes de crear
+### Book Model - Validar datos antes de crear
 ```python
 data = {
     "title": "Nuevo Libro",
@@ -221,7 +356,7 @@ data = {
     "editorials": "Nueva Editorial",
     "gender": "Ficción",
     "language": "Español",
-    "pages": "300",
+    "pages": 300,
     "isbn": "978-84-1234-567-8"
 }
 
@@ -232,30 +367,30 @@ else:
     book = Book(**data)
 ```
 
-### Serializar para API
+### Book Model - Serializar para API
 ```python
-book = Book("Ejemplo", "Autor Ejemplo", editorials="Editorial Ejemplo", language="Español")
+book = Book("Ejemplo", "Autor Ejemplo", editorials="Editorial Ejemplo", language="Español", pages=250)
 json_data = book.to_dict()
 # Resultado: {
 #   "id": None, 
 #   "title": "Ejemplo", 
 #   "author": "Autor Ejemplo", 
-#   "published_date": "2025-09-07T...",
+#   "published_date": "2025-09-21T...",
 #   "editorials": "Editorial Ejemplo",
 #   "gender": None,
 #   "language": "Español",
-#   "pages": None,
+#   "pages": 250,
 #   "isbn": None
 # }
 ```
 
-### Actualizar libro existente
+### Book Model - Actualizar libro existente
 ```python
 # Actualización parcial - solo algunos campos
 book.update(
     title="Título Actualizado",
     published_date="2024-01-01",
-    pages="450"
+    pages=450
 )
 # El autor, editorial, género, idioma e ISBN permanecen sin cambios
 
@@ -267,45 +402,175 @@ book.update(
     editorials="Nueva Editorial",
     gender="Ensayo",
     language="Inglés",
-    pages="250",
+    pages=250,
     isbn="978-0-1234-5678-9"
 )
 ```
 
+### User Model - Crear un nuevo usuario
+```python
+# Usuario básico
+user = User(
+    username="usuario123",
+    password="contraseña_segura"
+)
+
+# El password debería estar hasheado en un caso real
+```
+
+### User Model - Validar datos antes de crear
+```python
+data = {
+    "username": "nuevo_usuario",
+    "password": "mi_password_seguro"
+}
+
+error = User.validate_user_data(data)
+if error:
+    print(f"Error de validación: {error}")
+else:
+    user = User(**data)
+```
+
+### User Model - Serializar para API (seguro)
+```python
+user = User("ejemplo_user", "password123")
+user.id = 1  # Simulando que se guardó en BD
+json_data = user.to_dict()
+# Resultado: {
+#   "id": 1,
+#   "username": "ejemplo_user"
+#   # Note: password NO está incluido por seguridad
+# }
+```
+
+### User Model - Representación para debugging
+```python
+user = User("debug_user", "debug_pass")
+print(user)  # Resultado: <User debug_user>
+# También registra en logs: "Representación de usuario solicitada: debug_user"
+```
+
 ## Características Avanzadas
 
-### 1. Manejo Robusto de Fechas
+### 1. Manejo Robusto de Fechas (Book Model)
 - Acepta múltiples formatos de entrada
 - Conversión automática a datetime
 - Fallback a fecha actual para entradas inválidas
+- Detección automática de string vs datetime en serialización
 
-### 2. Validación Defensiva
+### 2. Validación Defensiva (Ambos Modelos)
 - Verificación de tipos de datos
 - Validación de campos requeridos
 - Mensajes de error descriptivos
+- Validaciones de seguridad específicas para usuarios
 
-### 3. Flexibilidad en Actualizaciones
+### 3. Flexibilidad en Actualizaciones (Book Model)
 - Actualización parcial de campos
 - Preservación de datos existentes
 - Reutilización de lógica de validación
 
-### 4. Compatibilidad con APIs
+### 4. Compatibilidad con APIs (Ambos Modelos)
 - Serialización automática a JSON
 - Formato estándar de respuesta
 - Manejo de tipos de datos complejos
+- Exclusión de datos sensibles (password)
+
+### 5. Seguridad (User Model)
+- Validación de longitud de credenciales
+- Username único con índice para rendimiento
+- Exclusión automática de password en serialización
+- Soporte para hashing de passwords
+
+### 6. Sistema de Logging (User Model)
+- Logging integrado para auditoría
+- Registro de operaciones de representación
+- Facilita debugging y monitoreo
+
+### 7. Integración Flask-SQLAlchemy
+- Herencia de `db.Model` para funcionalidad completa
+- Compatibilidad con migraciones de Flask
+- Manejo automático de sesiones
+- Soporte para relaciones (futuras extensiones)
+
+## Estructura de Archivos de la Carpeta Models
+
+```
+models/
+├── __init__.py              # Marca el directorio como paquete Python
+├── book_model.py            # Modelo para libros con validación avanzada
+├── user_model.py            # Modelo para usuarios con seguridad
+├── db.py                    # Configuración central de Flask-SQLAlchemy
+└── README_Model.md          # Esta documentación
+```
+
+## Consideraciones de Tipos de Datos
+
+### Book Model
+- **pages**: Campo tipo **entero** (no string como en versiones anteriores)
+- **published_date**: String que se convierte a datetime internamente
+- **id**: Autoincremental, manejado por SQLAlchemy
+
+### User Model
+- **username**: String con restricciones de longitud y unicidad
+- **password**: String con longitud suficiente para hashing
+- **id**: Autoincremental, manejado por SQLAlchemy
+
+## Integración con Flask-SQLAlchemy
+
+### Configuración de la Aplicación
+```python
+from flask import Flask
+from models.db import db
+from models.book_model import Book
+from models.user_model import User
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///example.db'
+
+# Inicializar SQLAlchemy con la app
+db.init_app(app)
+
+# Crear tablas
+with app.app_context():
+    db.create_all()
+```
+
+### Uso en Controladores
+```python
+from models.db import db
+from models.book_model import Book
+from models.user_model import User
+
+# Crear nuevo libro
+book = Book(title="Ejemplo", author="Autor")
+db.session.add(book)
+db.session.commit()
+
+# Buscar usuario
+user = User.query.filter_by(username="ejemplo").first()
+```
 
 ## Ventajas del Diseño
 
 1. **Robustez**: Manejo de errores y validación integral
-2. **Flexibilidad**: Soporte para múltiples formatos de fecha
-3. **Reutilización**: Métodos estáticos para validación
-4. **Mantenibilidad**: Código bien estructurado y documentado
-5. **Escalabilidad**: Fácil extensión para nuevos campos
-6. **Testabilidad**: Métodos independientes fáciles de testear
+2. **Flexibilidad**: Soporte para múltiples formatos de fecha y actualizaciones parciales
+3. **Seguridad**: Validaciones de credenciales y exclusión de datos sensibles
+4. **Reutilización**: Métodos estáticos para validación
+5. **Mantenibilidad**: Código bien estructurado y documentado
+6. **Escalabilidad**: Fácil extensión para nuevos campos y modelos
+7. **Testabilidad**: Métodos independientes fáciles de testear
+8. **Auditabilidad**: Sistema de logging integrado
+9. **Rendimiento**: Índices en campos críticos y optimizaciones de consulta
+10. **Compatibilidad**: Integración completa con Flask y SQLAlchemy
 
-## Integración con SQLAlchemy
+## Extensibilidad Futura
 
-- **Base declarativa**: Hereda de `Base` para mapeo ORM
-- **Definición de tabla**: Especifica nombre y estructura
-- **Tipos de columna**: Usa tipos SQLAlchemy apropiados
-- **Constraints**: Define claves primarias y restricciones de nulidad
+El diseño actual facilita:
+- **Relaciones entre modelos**: User puede tener muchos Books
+- **Nuevos campos**: Fácil agregar campos a cualquier modelo
+- **Validaciones adicionales**: Extensión de métodos de validación
+- **Nuevos modelos**: Seguir el mismo patrón para otras entidades
+- **Middleware**: Hooks para operaciones pre/post guardado
+- **Caching**: Integración con sistemas de cache
+- **Indexación**: Agregar más índices según necesidades de rendimiento
