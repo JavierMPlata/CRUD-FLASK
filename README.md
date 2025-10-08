@@ -1,6 +1,29 @@
 # 📚 API CR## 🚀 Características
+# 📚 API CRUD de Libros con Autenticación JWT - Flask + Next.js
 
-- ✅ **API REST completa** con operaciones CRUD
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-2.3.3-green.svg)](https://flask.palletsprojects.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue.svg)](https://www.typescriptlang.org/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0.21-red.svg)](https://www.sqlalchemy.org/)
+[![JWT](https://img.shields.io/badge/JWT-Authentication-orange.svg)](https://jwt.io/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-JavierMPlata-black.svg)](https://github.com/JavierMPlata)
+
+Una aplicación full-stack completa con **backend Flask** (API REST) y **frontend Next.js** (UI moderna), implementando gestión de libros con autenticación JWT, operaciones CRUD y arquitectura modular y escalable.
+
+## 🎯 Novedades
+
+### ✨ **Frontend Next.js Añadido**
+- 🎨 Interfaz moderna con **Tailwind CSS**
+- ⚡ **Sistema de caché inteligente** para optimizar peticiones
+- 🔐 Manejo automático de **JWT tokens**
+- 📱 **Diseño responsivo** (mobile, tablet, desktop)
+- 🌙 Soporte para **dark mode**
+- 🏗️ **Arquitectura limpia** con separación de servicios
+- 📝 **TypeScript** para type safety completo
+
+## 🚀 CaracterísticasREST completa** con operaciones CRUD
 - 🔐 **Autenticación JWT** segura para todos los endpoints de libros
 - 👤 **Sistema de usuarios** con registro y login
 - 📖 **Gestión de libros** completa (título, autor, fecha de publicación, editorial, género, idioma, páginas, ISBN)
@@ -12,22 +35,23 @@
 - 🛡️ **Seguridad implementada** (contraseñas hasheadas, tokens JWT, validación de datos)
 - 🔧 **## 🔧 Tecnologías
 
+### Backend
 - **[Flask](https://flask.palletsprojects.com/)**: Framework web minimalista de Python
 - **[Flask-JWT-Extended](https://flask-jwt-extended.readthedocs.io/)**: Manejo de autenticación JWT
 - **[Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/)**: ORM integrado con Flask
+- **[Flask-CORS](https://flask-cors.readthedocs.io/)**: Manejo de CORS para integración con frontend
 - **[SQLAlchemy](https://www.sqlalchemy.org/)**: ORM para Python y manejo de base de datos
 - **[Bcrypt](https://pypi.org/project/bcrypt/)**: Hashing seguro de contraseñas
 - **[PyMySQL](https://pypi.org/project/PyMySQL/)**: Conector MySQL para Python
 - **[Python-dotenv](https://pypi.org/project/python-dotenv/)**: Gestión de variables de entorno
 - **[Gunicorn](https://gunicorn.org/)**: Servidor WSGI para producción
-- **[Flasgger](https://github.com/flasgger/flasgger)**: Documentación automática Swagger (preparado)
-- **[PyYAML](https://pypi.org/project/PyYAML/)**: Procesamiento de archivos YAML
-- **[Werkzeug](https://werkzeug.palletsprojects.com/)**: Utilidades WSGI para Flask
-- **Python 3.8+**: Lenguaje de programación
-- **JSON**: Formato de intercambio de datos
-- **RESTful API**: Arquitectura de servicios web
-- **JWT**: JSON Web Tokens para autenticación
-- **Railway**: Plataforma de despliegue cloudón flexible** para diferentes entornos de desarrollo
+
+### Frontend
+- **[Next.js 14](https://nextjs.org/)**: Framework React con App Router
+- **[React 18](https://react.dev/)**: Librería UI
+- **[TypeScript](https://www.typescriptlang.org/)**: Superset de JavaScript con tipos
+- **[Tailwind CSS](https://tailwindcss.com/)**: Framework de CSS utilitario
+- **[Axios](https://axios-http.com/)**: Cliente HTTP con interceptoresón flexible** para diferentes entornos de desarrollo
 - 🚄 **Railway deployment** optimizado para producción
 - 📚 **Documentación modular** con README específicos por módulo
 - 🌍 **Variables de entorno** con archivo .env para configuración segura

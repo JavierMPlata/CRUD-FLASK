@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from services.book_service import BookService
 from config.database import get_db_session
 from models.book_model import Book
+from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -97,9 +98,14 @@ def create_book():
     
     Expected JSON:
     {
-        "title": "Título del libro",
-        "author": "Autor del libro",
-        "published_date": "2023-01-01"
+        "title": "El Quijote de la Mancha",
+        "author": "Miguel de Cervantes",
+        "published_year": 1605,
+        "editorial": "Editorial Ejemplo",
+        "genre": "Novela",
+        "language": "Español",
+        "pages": 863,
+        "isbn": "978-84-376-0675-0"
     }
     
     Returns:
@@ -149,7 +155,13 @@ def update_book(book_id):
     Expected JSON:
     {
         "title": "Nuevo título",
-        "author": "Nuevo autor"
+        "author": "Nuevo autor",
+        "published_year": 2024,
+        "editorial": "Nueva Editorial",
+        "genre": "Ficción",
+        "language": "Inglés",
+        "pages": 250,
+        "isbn": "978-1-23456-789-0"
     }
     
     Returns:
@@ -165,11 +177,13 @@ def update_book(book_id):
         
         logger.info(f'Actualizando libro ID {book_id} (usuario ID: {current_user_id})')
         
-        # Validar datos
-        error = Book.validate_book_data(data)
-        if error:
-            logger.warning(f'Datos inválidos para actualizar libro: {error}')
-            return jsonify({"error": error}), 400
+        # Para actualización, no validamos campos requeridos (actualización parcial)
+        # Solo validamos tipos de datos si están presentes
+        if "published_year" in data and data["published_year"] is not None:
+            if not isinstance(data["published_year"], int):
+                return jsonify({"error": "Published year must be an integer."}), 400
+            if data["published_year"] < 1000 or data["published_year"] > datetime.now().year + 10:
+                return jsonify({"error": f"Published year must be between 1000 and {datetime.now().year + 10}."}), 400
         
         # Crear servicio con nueva sesión
         service = BookService(get_db_session())

@@ -5,7 +5,7 @@ Este módulo define los modelos de datos para las entidades Book y User utilizan
 ## Modelos Disponibles
 
 ### 1. Book Model (`book_model.py`)
-Modelo para la gestión de libros con características avanzadas de validación y serialización.
+Modelo para la gestión de libros con validación, serialización y timestamps automáticos.
 
 ### 2. User Model (`user_model.py`)
 Modelo para la gestión de usuarios con validación de credenciales y seguridad.
@@ -24,7 +24,7 @@ Configuración central de Flask-SQLAlchemy para la aplicación.
 ### Características del Modelo
 - **Validación de datos**: Métodos integrados para validar información
 - **Serialización**: Conversión automática a diccionarios JSON
-- **Parsing de fechas**: Manejo flexible de formatos de fecha (Book)
+- **Timestamps automáticos**: created_at y updated_at gestionados automáticamente (Book)
 - **Actualización parcial**: Método para updates selectivos (Book)
 - **Seguridad**: Validación de credenciales y exclusión de passwords (User)
 - **Logging**: Sistema de logging integrado para auditoría
@@ -62,26 +62,29 @@ class Book(db.Model):
     __tablename__ = "books"
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    title = db.Column(db.String(100), nullable=False)
-    author = db.Column(db.String(100), nullable=False)
-    published_date = db.Column(db.String(100), nullable=True)
-    editorials = db.Column(db.String(100), nullable=True)
-    gender = db.Column(db.String(100), nullable=True)
-    language = db.Column(db.String(100), nullable=True)
-    pages = db.Column(db.Integer, nullable=True)
-    isbn = db.Column(db.String(100), nullable=True)
+    title = db.Column(db.String(200), nullable=False)
+    author = db.Column(db.String(200), nullable=False)
+    published_year = db.Column(db.Integer, nullable=True)
+    isbn = db.Column(db.String(50), nullable=True)
+    genre = db.Column(db.String(100), nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 ```
 
 **Campos de la tabla:**
 - `id`: Clave primaria, entero autoincremental
-- `title`: Título del libro, string de máximo 100 caracteres, requerido
-- `author`: Autor del libro, string de máximo 100 caracteres, requerido
-- `published_date`: Fecha de publicación, string de máximo 100 caracteres, opcional
-- `editorials`: Editorial del libro, string de máximo 100 caracteres, opcional
-- `gender`: Género literario del libro, string de máximo 100 caracteres, opcional
-- `language`: Idioma del libro, string de máximo 100 caracteres, opcional
-- `pages`: Número de páginas del libro, **entero**, opcional
-- `isbn`: Código ISBN del libro, string de máximo 100 caracteres, opcional
+- `title`: Título del libro, string de máximo 200 caracteres, requerido
+- `author`: Autor del libro, string de máximo 200 caracteres, requerido
+- `published_year`: Año de publicación, entero (ej: 2024), opcional
+- `isbn`: Código ISBN del libro, string de máximo 50 caracteres, opcional
+- `genre`: Género literario del libro, string de máximo 100 caracteres, opcional
+- `created_at`: Fecha y hora de creación del registro, DateTime, automático
+- `updated_at`: Fecha y hora de última actualización, DateTime, automático
+
+**Características:**
+- `created_at` se establece automáticamente al crear el registro
+- `updated_at` se actualiza automáticamente cada vez que se modifica el registro
+- `published_year` es un entero para facilitar validaciones y ordenamiento
 
 ## User Model - Definición del Modelo
 
@@ -115,39 +118,21 @@ class User(db.Model):
 
 ### 1. Constructor `__init__()`
 ```python
-def __init__(self, title: str, author: str, published_date: Optional[str] = None, 
-             editorials: Optional[str] = None, gender: Optional[str] = None, 
-             language: Optional[str] = None, pages: Optional[int] = None, 
-             isbn: Optional[str] = None):
+def __init__(self, title: str, author: str, published_year: Optional[int] = None, 
+             isbn: Optional[str] = None, genre: Optional[str] = None):
 ```
 
 **Funcionalidad:**
 - Inicializa una nueva instancia del libro
-- Procesa la fecha de publicación usando `_parse_date()`
-- Si no se proporciona fecha, usa la fecha actual
-- Asigna todos los campos adicionales del libro
+- Establece automáticamente las fechas de creación y actualización
+- Asigna todos los campos del libro
 
 **Parámetros:**
 - `title`: Título del libro (requerido)
 - `author`: Autor del libro (requerido)
-- `published_date`: Fecha de publicación (opcional)
-- `editorials`: Editorial del libro (opcional)
-- `gender`: Género literario del libro (opcional)
-- `language`: Idioma del libro (opcional)
-- `pages`: Número de páginas del libro (opcional, **entero**)
+- `published_year`: Año de publicación (opcional, entero)
 - `isbn`: Código ISBN del libro (opcional)
-
-### 2. Parser de Fechas `_parse_date()`
-```python
-def _parse_date(self, date_str: str) -> datetime:
-```
-
-**Funcionalidad:**
-- Convierte strings de fecha a objetos datetime
-- Maneja múltiples formatos de fecha
-- Fallback a fecha actual si el parsing falla
-
-**Formatos soportados:**
+- `genre`: Género literario del libro (opcional)
 1. **ISO Format**: `2023-12-25T10:30:00Z`
 2. **Date Format**: `2023-12-25`
 3. **Fallback**: Fecha actual si no se puede parsear
@@ -163,7 +148,7 @@ except (ValueError, AttributeError):
         return datetime.now()
 ```
 
-### 3. Serialización `to_dict()`
+### 2. Serialización `to_dict()`
 ```python
 def to_dict(self) -> Dict[str, Any]:
 ```
@@ -171,45 +156,43 @@ def to_dict(self) -> Dict[str, Any]:
 **Funcionalidad:**
 - Convierte la instancia del modelo a diccionario
 - Útil para serialización JSON en APIs
-- Maneja conversión de datetime a string ISO
-- Detecta si la fecha ya es string o datetime
+- Incluye timestamps de creación y actualización
+- Formato ISO 8601 para las fechas
 
 **Retorna:**
 ```json
 {
     "id": 1,
-    "title": "Título del libro",
-    "author": "Nombre del autor",
-    "published_date": "2023-12-25T10:30:00",
-    "editorials": "Editorial del libro",
-    "gender": "Género literario",
-    "language": "Idioma del libro",
-    "pages": 300,
-    "isbn": "Código ISBN"
+    "title": "El Quijote de la Mancha",
+    "author": "Miguel de Cervantes",
+    "published_year": 1605,
+    "isbn": "978-84-376-0675-0",
+    "genre": "Novela",
+    "created_at": "2025-10-08T10:30:00.123456",
+    "updated_at": "2025-10-08T15:45:30.654321"
 }
 ```
 
-### 4. Actualización `update()`
+### 3. Actualización `update()`
 ```python
 def update(self, title: Optional[str] = None, author: Optional[str] = None, 
-           published_date: Optional[str] = None, editorials: Optional[str] = None, 
-           gender: Optional[str] = None, language: Optional[str] = None, 
-           pages: Optional[int] = None, isbn: Optional[str] = None):
+           published_year: Optional[int] = None, isbn: Optional[str] = None, 
+           genre: Optional[str] = None):
 ```
 
 **Funcionalidad:**
 - Actualiza selectivamente los campos del libro
 - Solo actualiza campos que no sean None
-- Procesa fechas usando `_parse_date()`
+- Actualiza automáticamente el timestamp `updated_at`
 - Permite actualización de todos los campos disponibles
 
 **Ventajas:**
 - Actualización parcial de datos
 - Preserva valores existentes si no se especifican nuevos
-- Reutiliza lógica de parsing de fechas
+- Timestamp automático de última modificación
 - Flexibilidad para actualizar cualquier combinación de campos
 
-### 5. Validación Estática `validate_book_data()`
+### 4. Validación Estática `validate_book_data()`
 ```python
 @staticmethod
 def validate_book_data(data: Dict[str, Any]) -> Optional[str]:
@@ -223,22 +206,17 @@ def validate_book_data(data: Dict[str, Any]) -> Optional[str]:
 **Validaciones realizadas:**
 1. **Título requerido**: Verifica que el título exista y no esté vacío
 2. **Autor requerido**: Verifica que el autor exista y no esté vacío
-3. **Tipo de fecha**: Si se proporciona fecha, debe ser string
-4. **Tipo de editorial**: Si se proporciona editorial, debe ser string
+3. **Tipo y rango de año**: Si se proporciona, debe ser entero entre 1000 y año actual + 10
+4. **Tipo de ISBN**: Si se proporciona ISBN, debe ser string
 5. **Tipo de género**: Si se proporciona género, debe ser string
-6. **Tipo de idioma**: Si se proporciona idioma, debe ser string
-7. **Tipo de páginas**: Si se proporciona páginas, debe ser **entero**
-8. **Tipo de ISBN**: Si se proporciona ISBN, debe ser string
 
 **Mensajes de error:**
 - `"Title is required."`: Cuando falta el título
 - `"Author is required."`: Cuando falta el autor  
-- `"Published date must be a string."`: Cuando la fecha no es string
-- `"Editorials must be a string."`: Cuando la editorial no es string
-- `"Gender must be a string."`: Cuando el género no es string
-- `"Language must be a string."`: Cuando el idioma no es string
-- `"Pages must be an integer."`: Cuando las páginas no son **entero**
+- `"Published year must be an integer."`: Cuando el año no es entero
+- `"Published year must be between 1000 and 2035."`: Cuando el año está fuera de rango
 - `"ISBN must be a string."`: Cuando el ISBN no es string
+- `"Genre must be a string."`: Cuando el género no es string
 
 ## User Model - Métodos del Modelo
 

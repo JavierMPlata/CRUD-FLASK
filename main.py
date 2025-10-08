@@ -1,8 +1,10 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 import logging
 import os
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
+from datetime import timedelta
 
 from controllers.book_controller import book_bp
 from controllers.user_controller import user_bp
@@ -23,6 +25,15 @@ logging.getLogger('werkzeug').setLevel(logging.INFO)
 
 app = Flask(__name__)
 
+# Configurar CORS para permitir peticiones desde el frontend
+CORS(app, resources={
+    r"/*": {
+        "origins": ["http://localhost:3000"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
+
 # Configuración de la aplicación
 app.config['API_VERSION'] = '1.0.0'
 
@@ -40,6 +51,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configuración JWT
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'tu_clave_secreta_jwt_super_segura')
+# Configurar tiempo de expiración del token a 20 segundos
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=20)
 
 # Inicializar extensiones
 db.init_app(app)
