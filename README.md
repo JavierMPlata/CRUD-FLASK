@@ -1,4 +1,3 @@
-# 📚 API CR## 🚀 Características
 # 📚 API CRUD de Libros con Autenticación JWT - Flask + Next.js
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
@@ -14,16 +13,21 @@ Una aplicación full-stack completa con **backend Flask** (API REST) y **fronten
 
 ## 🎯 Novedades
 
-### ✨ **Frontend Next.js Añadido**
-- 🎨 Interfaz moderna con **Tailwind CSS**
-- ⚡ **Sistema de caché inteligente** para optimizar peticiones
-- 🔐 Manejo automático de **JWT tokens**
-- 📱 **Diseño responsivo** (mobile, tablet, desktop)
-- 🌙 Soporte para **dark mode**
-- 🏗️ **Arquitectura limpia** con separación de servicios
-- 📝 **TypeScript** para type safety completo
+### ✨ **Frontend Next.js 14 Añadido**
+- 🎨 **Interfaz moderna** con Tailwind CSS y diseño responsivo
+- ⚡ **App Router** de Next.js 14 para mejor rendimiento
+- 🔐 **Manejo automático de JWT tokens** con interceptores HTTP
+- 📱 **Diseño responsive** optimizado para móviles, tablets y desktop
+- 🏗️ **Arquitectura limpia** con separación de servicios y tipos TypeScript
+- 📝 **TypeScript completo** para type safety en toda la aplicación
+- 🔄 **Interceptores HTTP** para manejo automático de autenticación
+- 🎯 **Gestión de estados** optimizada para operaciones CRUD
+- 📊 **Manejo de errores** centralizado con mensajes user-friendly
+- 🚀 **Single Page Application** con navegación fluida
 
-## 🚀 CaracterísticasREST completa** con operaciones CRUD
+## 🚀 Características
+
+- ✅ **API REST completa** con operaciones CRUD
 - 🔐 **Autenticación JWT** segura para todos los endpoints de libros
 - 👤 **Sistema de usuarios** con registro y login
 - 📖 **Gestión de libros** completa (título, autor, fecha de publicación, editorial, género, idioma, páginas, ISBN)
@@ -33,7 +37,14 @@ Una aplicación full-stack completa con **backend Flask** (API REST) y **fronten
 - 🎯 **Respuestas JSON** consistentes y estructuradas
 - 📊 **Manejo de errores** centralizado con mensajes informativos
 - 🛡️ **Seguridad implementada** (contraseñas hasheadas, tokens JWT, validación de datos)
-- 🔧 **## 🔧 Tecnologías
+- 🔧 **Configuración flexible** para diferentes entornos de desarrollo
+- 🚄 **Railway deployment** optimizado para producción
+- 📚 **Documentación modular** con README específicos por módulo
+- 🌍 **Variables de entorno** con archivo .env para configuración segura
+- ⚡ **Servidor de producción** con Gunicorn incluido
+- 🔄 **Configuración automática** de base de datos según disponibilidad
+
+## 🔧 Tecnologías
 
 ### Backend
 - **[Flask](https://flask.palletsprojects.com/)**: Framework web minimalista de Python
@@ -51,20 +62,8 @@ Una aplicación full-stack completa con **backend Flask** (API REST) y **fronten
 - **[React 18](https://react.dev/)**: Librería UI
 - **[TypeScript](https://www.typescriptlang.org/)**: Superset de JavaScript con tipos
 - **[Tailwind CSS](https://tailwindcss.com/)**: Framework de CSS utilitario
-- **[Axios](https://axios-http.com/)**: Cliente HTTP con interceptoresón flexible** para diferentes entornos de desarrollo
-- 🚄 **Railway deployment** optimizado para producción
-- 📚 **Documentación modular** con README específicos por módulo
-- 🌍 **Variables de entorno** con archivo .env para configuración segura
-- ⚡ **Servidor de producción** con Gunicorn incluido
-- 🔄 **Configuración automática** de base de datos según disponibilidadcon Autenticación JWT - Flask
-
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
-[![Flask](https://img.shields.io/badge/Flask-2.3.3-green.svg)](https://flask.palletsprojects.com/)
-[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0.21-red.svg)](https://www.sqlalchemy.org/)
-[![JWT](https://img.shields.io/badge/JWT-Authentication-orange.svg)](https://jwt.io/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![GitHub](https://img.shields.io/badge/GitHub-JavierMPlata-black.svg)](https://github.com/JavierMPlata)
-
+- **[Axios](https://axios-http.com/)**: Cliente HTTP con interceptores
+  
 Una API REST completa desarrollada con Flask para gestionar libros con autenticación JWT, implementando operaciones CRUD (Create, Read, Update, Delete) con una arquitectura modular y escalable.
 
 ## 🚀 Características
@@ -86,6 +85,7 @@ Una API REST completa desarrollada con Flask para gestionar libros con autentica
 - [Instalación](#instalación)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Configuración](#configuración)
+- [Frontend Next.js](#frontend-nextjs)
 - [Autenticación JWT](#autenticación-jwt)
 - [Uso](#uso)
 - [Endpoints de la API](#endpoints-de-la-api)
@@ -153,12 +153,29 @@ pip install -r requirements.txt
    echo "JWT_SECRET_KEY=$(python -c 'import secrets; print(secrets.token_hex(32))')" > .env
    ```
 
-5. **Ejecuta la aplicación:**
+5. **Ejecuta el backend:**
 ```bash
 python main.py
 ```
 
-La aplicación estará disponible en `http://localhost:5000`
+El backend estará disponible en `http://localhost:5000`
+
+6. **Configura y ejecuta el frontend (opcional):**
+```bash
+# Navegar al directorio del frontend
+cd frontend
+
+# Instalar dependencias de Node.js
+npm install
+
+# Crear archivo de configuración
+echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:5000" > .env.local
+
+# Ejecutar el frontend
+npm run dev
+```
+
+El frontend estará disponible en `http://localhost:3000`
 
 ### 🔧 Configuración Avanzada
 
@@ -199,6 +216,36 @@ CRUD-FLASK/
 │   ├── user_controller.py # Controlador de usuarios y autenticación
 │   ├── README_Controller.md # Documentación de controladores
 │   └── __pycache__/      # Archivos compilados de Python
+├── frontend/             # Frontend Next.js 14 con TypeScript
+│   ├── .env.local       # Variables de entorno del frontend
+│   ├── .next/           # Build files de Next.js
+│   ├── node_modules/    # Dependencias de Node.js
+│   ├── public/          # Archivos estáticos
+│   ├── src/             # Código fuente del frontend
+│   │   ├── app/         # App Router de Next.js 14
+│   │   │   ├── globals.css      # Estilos globales
+│   │   │   ├── layout.tsx       # Layout principal
+│   │   │   ├── page.tsx         # Página principal
+│   │   │   ├── books/           # Gestión de libros
+│   │   │   │   └── page.tsx     # CRUD de libros
+│   │   │   ├── login/           # Autenticación
+│   │   │   │   └── page.tsx     # Página de login
+│   │   │   └── register/        # Registro
+│   │   │       └── page.tsx     # Página de registro
+│   │   ├── lib/         # Utilidades y configuraciones
+│   │   │   └── apiClient.ts     # Cliente HTTP con Axios
+│   │   ├── services/    # Servicios para interactuar con API
+│   │   │   ├── authService.ts   # Servicios de autenticación
+│   │   │   └── bookService.ts   # Servicios de libros
+│   │   └── types/       # Definiciones de tipos TypeScript
+│   │       ├── api.types.ts     # Tipos para API
+│   │       ├── book.types.ts    # Tipos de libros
+│   │       └── user.types.ts    # Tipos de usuarios
+│   ├── next.config.js   # Configuración de Next.js
+│   ├── package.json     # Dependencias del frontend
+│   ├── tailwind.config.ts # Configuración de Tailwind CSS
+│   ├── tsconfig.json    # Configuración de TypeScript
+│   └── README_frontned.md # Documentación del frontend
 ├── models/               # Modelos de datos con SQLAlchemy
 │   ├── __init__.py      # Inicialización del módulo
 │   ├── book_model.py    # Modelo Book con definición de tabla
@@ -246,6 +293,7 @@ El proyecto incluye documentación detallada en cada módulo:
 | `README_Model.md` | `/models/` | Modelos de datos, relaciones y esquemas SQLAlchemy |
 | `README_Repository.md` | `/repositories/` | Operaciones CRUD y acceso a datos |
 | `README_Service.md` | `/services/` | Lógica de negocio y validaciones |
+| `README_frontned.md` | `/frontend/` | Frontend Next.js, componentes y configuración |
 
 **Características de la documentación:**
 - **Ejemplos de código**: Snippets funcionales en cada módulo
@@ -342,6 +390,81 @@ CORS_ENABLED=True             # Habilitar CORS
    - **Credenciales protegidas**: Nunca en el código fuente
    - **Archivo .env ignorado**: Por Git para proteger datos sensibles
 
+## 🎨 Frontend Next.js
+
+### Características del Frontend
+
+La aplicación incluye un frontend completo desarrollado con Next.js 14 que proporciona:
+
+#### 🖥️ **Interfaz de Usuario**
+- **Diseño moderno**: Interfaz clean y responsiva con Tailwind CSS
+- **App Router**: Utiliza el nuevo sistema de enrutado de Next.js 14
+- **TypeScript**: Tipado completo para mayor robustez y autocompletado
+- **Responsive Design**: Optimizado para móviles, tablets y desktop
+
+#### 🔐 **Gestión de Autenticación**
+- **Login/Register**: Formularios de autenticación con validación
+- **JWT Integration**: Manejo automático de tokens con interceptores HTTP
+- **Session Management**: Persistencia de sesión con sessionStorage
+- **Auto-logout**: Redirección automática cuando el token expira
+
+#### 📚 **Gestión de Libros**
+- **Lista de libros**: Vista de todos los libros con información completa
+- **Crear libros**: Formulario para añadir nuevos libros
+- **Editar libros**: Actualización de información existente
+- **Eliminar libros**: Confirmación antes de eliminar registros
+- **Validación**: Formularios con validación client-side
+
+#### 🏗️ **Arquitectura Frontend**
+- **Servicios**: Capa de abstracción para API calls (`authService`, `bookService`)
+- **ApiClient**: Cliente HTTP centralizado con Axios e interceptores
+- **Tipos TypeScript**: Definiciones completas para datos (`Book`, `User`, `ApiResponse`)
+- **Componentes**: Estructura modular y reutilizable
+
+### Configuración del Frontend
+
+```bash
+# Variables de entorno del frontend (.env.local)
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
+```
+
+### Rutas Disponibles
+
+| Ruta | Descripción | Autenticación |
+|------|-------------|---------------|
+| `/` | Página principal con información del proyecto | ❌ No |
+| `/login` | Inicio de sesión | ❌ No |
+| `/register` | Registro de nuevos usuarios | ❌ No |
+| `/books` | Gestión completa de libros (CRUD) | ✅ Sí |
+
+### Tecnologías Frontend
+
+- **Next.js 14**: Framework React con App Router
+- **React 18**: Biblioteca de componentes UI
+- **TypeScript**: Superset tipado de JavaScript
+- **Tailwind CSS**: Framework CSS utilitario
+- **Axios**: Cliente HTTP con interceptores
+- **ESLint**: Linting para mantener calidad de código
+
+### Ejecutar el Frontend
+
+```bash
+# Navegar al directorio frontend
+cd frontend
+
+# Instalar dependencias
+npm install
+
+# Ejecutar en desarrollo
+npm run dev
+
+# Build para producción
+npm run build
+npm run start
+```
+
+**📋 Nota**: El frontend se conecta automáticamente al backend Flask en `http://localhost:5000` y utiliza los mismos endpoints de la API REST.
+
 ## 🔐 Autenticación JWT
 
 ### Características de Seguridad
@@ -370,17 +493,43 @@ Todos los endpoints de libros requieren autenticación JWT. El flujo básico es:
 
 ## 🎯 Uso
 
-### Iniciar la aplicación
+### Opción 1: Solo Backend (API REST)
 
 ```bash
 python main.py
 ```
 
-El servidor se iniciará en `http://localhost:5000`
+El servidor backend se iniciará en `http://localhost:5000`
 
-### Página de bienvenida
+**Página de bienvenida**: Visita `http://localhost:5000` para ver la información de la API y endpoints disponibles.
 
-Visita `http://localhost:5000` para ver la información de la API y endpoints disponibles.
+### Opción 2: Aplicación Full-Stack (Recomendado)
+
+#### 1. Iniciar el Backend:
+```bash
+python main.py
+```
+
+#### 2. Iniciar el Frontend:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+- **Backend**: `http://localhost:5000` (API REST)
+- **Frontend**: `http://localhost:3000` (Interfaz de usuario)
+
+### Usando la Aplicación Web
+
+1. **Accede al frontend**: `http://localhost:3000`
+2. **Regístrate**: Crea una nueva cuenta de usuario
+3. **Inicia sesión**: Obtén acceso a la gestión de libros
+4. **Gestiona libros**: Realiza operaciones CRUD desde la interfaz web
+
+### Usando la API directamente
+
+Para usar solo la API REST, consulta la sección [Endpoints de la API](#endpoints-de-la-api) y [Ejemplos de Uso](#ejemplos-de-uso).
 
 ## 🔌 Endpoints de la API
 
@@ -822,30 +971,51 @@ En todos los requests de libros:
 - **RESTful API**: Arquitectura de servicios web
 - **JWT**: JSON Web Tokens para autenticación
 
-### Dependencias principales
+### Dependencias del Backend
 
 ```
-Flask==2.3.3
-Flask-JWT-Extended==4.5.2
-Flask-SQLAlchemy==3.0.5
-bcrypt==4.0.1
-python-dotenv==1.0.0
-SQLAlchemy==2.0.21
-PyMySQL==1.1.0
-Werkzeug==2.3.7
-Gunicorn==21.2.0
-Flasgger==0.9.7.1
-PyYAML==6.0.1
+flask
+flask_sqlalchemy
+flask_jwt_extended
+flask-cors
+pymysql
+werkzeug
+python-dotenv
+gunicorn
+sqlalchemy
+flasgger
+PyYAML
 ```
 
-**Nuevas dependencias añadidas:**
+### Dependencias del Frontend
 
-- **`python-dotenv`**: Gestión de variables de entorno desde archivo `.env`
-- **`PyMySQL`**: Conector MySQL para Python con SQLAlchemy
-- **`Gunicorn`**: Servidor WSGI para producción y despliegue
-- **`Flasgger`**: Documentación automática de API con Swagger (preparado)
-- **`PyYAML`**: Procesamiento de archivos YAML para configuraciones
-- **`Werkzeug`**: Utilidades WSGI optimizadas para Flask
+```json
+{
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
+    "typescript": "^5.2.0"
+  }
+}
+```
+
+**Características de las dependencias:**
+
+- **Backend**: Flask moderno con JWT, CORS habilitado para frontend, base de datos dual
+- **Frontend**: Next.js 14 con App Router, TypeScript, Tailwind CSS y Axios
+- **Integración**: Comunicación seamless entre frontend y backend via API REST
 
 ## 🧪 Testing
 
@@ -932,16 +1102,74 @@ gunicorn --bind 0.0.0.0:8000 --workers 4 main:app
 ### 🛡️ Configuración de Seguridad para Producción
 
 ```bash
-# Configuración mínima de seguridad
+# Backend - Configuración mínima de seguridad
 export SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex(32))")
 export JWT_SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex(32))")
 export FLASK_ENV=production
 export FLASK_DEBUG=False
 ```
 
+### 🎨 Despliegue del Frontend
+
+#### Vercel (Recomendado para Frontend)
+```bash
+# 1. Instalar Vercel CLI
+npm i -g vercel
+
+# 2. Deploy desde el directorio frontend
+cd frontend
+vercel --prod
+
+# 3. Configurar variable de entorno en Vercel
+# NEXT_PUBLIC_API_BASE_URL=https://tu-backend-url.com
+```
+
+#### Netlify
+```bash
+# 1. Build del proyecto
+cd frontend
+npm run build
+
+# 2. Deploy estático
+# Subir carpeta .next/out a Netlify
+```
+
+#### Railway (Full-Stack)
+```bash
+# Railway puede deployar tanto backend como frontend
+# Configuración automática para monorepo
+```
+
 ## 🚀 Guía de Inicio Rápido
 
-### Para comenzar inmediatamente:
+### Opción 1: Aplicación Web Completa (Recomendado)
+
+1. **Clona e instala el backend:**
+```bash
+git clone https://github.com/JavierMPlata/CRUD-FLASK.git
+cd CRUD-FLASK
+pip install -r requirements.txt
+python main.py
+```
+
+2. **Instala y ejecuta el frontend:**
+```bash
+cd frontend
+npm install
+echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:5000" > .env.local
+npm run dev
+```
+
+3. **Accede a la aplicación:**
+   - Frontend: `http://localhost:3000`
+   - Backend API: `http://localhost:5000`
+
+4. **Usa la interfaz web:**
+   - Regístrate en `/register`
+   - Inicia sesión en `/login`
+   - Gestiona libros en `/books`
+
+### Opción 2: Solo API REST
 
 1. **Inicia la aplicación:**
 ```bash
@@ -962,7 +1190,7 @@ curl -X POST http://localhost:5000/auth/login \
   -d '{"username": "test", "password": "test123"}'
 ```
 
-4. **Copia el `access_token` de la respuesta y úsalo en todos los endpoints de libros:**
+4. **Usa el token para gestionar libros:**
 ```bash
 curl -X GET http://localhost:5000/app/books \
   -H "Authorization: Bearer <tu_access_token>"
