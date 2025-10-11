@@ -13,10 +13,12 @@ class User(db.Model):
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password = db.Column(db.String(255), nullable=False)
 
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str, email: str, password: str):
         self.username = username
+        self.email = email
         self.password = password
 
     def __repr__(self):
@@ -27,7 +29,8 @@ class User(db.Model):
         """Convierte el usuario a diccionario para respuestas JSON"""
         return {
             'id': self.id,
-            'username': self.username
+            'username': self.username,
+            'email': self.email
             # Note: No incluimos password por seguridad
         }
 
@@ -37,10 +40,14 @@ class User(db.Model):
         if not data.get('username'):
             return "Username es requerido"
         
+        if not data.get('email'):
+            return "Email es requerido"
+        
         if not data.get('password'):
             return "Password es requerido"
         
         username = data.get('username')
+        email = data.get('email')
         password = data.get('password')
         
         # Validaciones básicas
@@ -49,6 +56,13 @@ class User(db.Model):
         
         if len(username) > 80:
             return "Username no puede exceder 80 caracteres"
+        
+        # Validación básica de email
+        if '@' not in email or '.' not in email.split('@')[-1]:
+            return "Email debe tener un formato válido"
+        
+        if len(email) > 120:
+            return "Email no puede exceder 120 caracteres"
         
         if len(password) < 6:
             return "Password debe tener al menos 6 caracteres"

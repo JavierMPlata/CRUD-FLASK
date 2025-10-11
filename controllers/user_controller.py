@@ -23,23 +23,25 @@ def register():
     Expected JSON:
     {
         "username": "usuario123",
+        "email": "usuario@example.com",
         "password": "contraseña123"
     }
     
     Returns:
         201: Usuario creado exitosamente
         400: Datos inválidos
-        409: Usuario ya existe
+        409: Usuario o email ya existe
         500: Error interno
     """
     try:
         data = request.get_json() or {}
         username = data.get('username')
+        email = data.get('email')
         password = data.get('password')
         
         # Validar datos de entrada
-        if not username or not password:
-            return jsonify({"error": "Username y password son requeridos"}), 400
+        if not username or not email or not password:
+            return jsonify({"error": "Username, email y password son requeridos"}), 400
         
         # Validar formato de datos
         validation_error = User.validate_user_data(data)
@@ -50,12 +52,12 @@ def register():
         
         # Crear servicio con nueva sesión
         service = UserService(get_db_session())
-        user = service.register_user(username, password)
+        user = service.register_user(username, email, password)
         
-        # Verificar si el usuario ya existe
-        if isinstance(user, dict) and user.get('error') == 'Usuario ya existe':
-            logger.warning(f'Usuario ya existe: {username}')
-            return jsonify({'error': 'Usuario ya existe'}), 409
+        # Verificar si el usuario o email ya existe
+        if isinstance(user, dict) and 'error' in user:
+            logger.warning(f'Error en registro: {user["error"]}')
+            return jsonify({'error': user['error']}), 409
         
         logger.info(f'Usuario registrado exitosamente: {user.username} (ID: {user.id})')
         return jsonify({
@@ -77,7 +79,7 @@ def login():
     
     Expected JSON:
     {
-        "username": "usuario123",
+        "login": "usuario123 o email@example.com",
         "password": "contraseña123"
     }
     
@@ -89,23 +91,23 @@ def login():
     """
     try:
         data = request.get_json() or {}
-        username = data.get('username')
+        login_identifier = data.get('login')
         password = data.get('password')
         
         # Validar datos de entrada
-        if not username or not password:
-            return jsonify({"error": "Username y password son requeridos"}), 400
+        if not login_identifier or not password:
+            return jsonify({"error": "Login y password son requeridos"}), 400
         
-        logger.info(f'Intento de login para usuario: {username}')
+        logger.info(f'Intento de login para: {login_identifier}')
         
         # Crear servicio con nueva sesión
         service = UserService(get_db_session())
-        user = service.authenticate(username, password)
+        user = service.authenticate(login_identifier, password)
         
         if user:
             # Crear token JWT con el ID del usuario
             access_token = create_access_token(identity=str(user.id))
-            logger.info(f'Login exitoso para usuario: {username}')
+            logger.info(f'Login exitoso para: {login_identifier}')
             
             return jsonify({
                 'message': 'Login exitoso',
@@ -113,7 +115,7 @@ def login():
                 'user': user.to_dict()
             }), 200
         else:
-            logger.warning(f'Login fallido para usuario: {username}')
+            logger.warning(f'Login fallido para: {login_identifier}')
             return jsonify({'error': 'Credenciales inválidas'}), 401
             
     except Exception as e:

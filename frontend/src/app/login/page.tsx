@@ -8,7 +8,7 @@ import authService from '@/services/authService';
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    username: '',
+    login: '',
     password: '',
   });
   const [error, setError] = useState('');
@@ -104,25 +104,25 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <label
-              htmlFor="username"
+              htmlFor="login"
               className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2"
             >
               <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              Usuario
+              Usuario o Email
             </label>
             <div className="relative">
               <input
-                id="username"
+                id="login"
                 type="text"
                 required
                 className="input-field pl-12 hover:border-blue-400 transition-all duration-200"
-                value={formData.username}
+                value={formData.login}
                 onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
+                  setFormData({ ...formData, login: e.target.value })
                 }
-                placeholder="Ingresa tu usuario"
+                placeholder="Ingresa tu usuario o email"
               />
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

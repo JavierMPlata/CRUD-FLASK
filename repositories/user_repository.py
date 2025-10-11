@@ -25,6 +25,16 @@ class UserRepository:
             logger.warning(f'Usuario no encontrado en repositorio: {username}')
         return user
 
+    def get_by_email(self, email: str):
+        """Busca un usuario por su email"""
+        logger.info(f'Buscando usuario por email en repositorio: {email}')
+        user = self.db_session.query(User).filter_by(email=email).first()
+        if user:
+            logger.info(f'Usuario encontrado por email en repositorio: {email}')
+        else:
+            logger.warning(f'Usuario no encontrado por email en repositorio: {email}')
+        return user
+
     def get_by_id(self, user_id: int):
         """Busca un usuario por su ID"""
         logger.info(f'Buscando usuario por ID en repositorio: {user_id}')
@@ -35,10 +45,10 @@ class UserRepository:
             logger.warning(f'Usuario con ID {user_id} no encontrado en repositorio')
         return user
 
-    def create_user(self, username: str, password: str):
+    def create_user(self, username: str, email: str, password: str):
         """Crea un nuevo usuario"""
         logger.info(f'Creando usuario en repositorio: {username}')
-        user = User(username=username, password=password)
+        user = User(username=username, email=email, password=password)
         self.db_session.add(user)
         self.db_session.commit()
         self.db_session.refresh(user)

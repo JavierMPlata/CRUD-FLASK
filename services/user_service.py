@@ -17,12 +17,13 @@ class UserService:
     def __init__(self, db_session: Session):
         self.user_repository = UserRepository(db_session)
 
-    def register_user(self, username: str, password: str):
+    def register_user(self, username: str, email: str, password: str):
         """
         Registra un nuevo usuario en el sistema
         
         Args:
             username (str): Nombre de usuario
+            email (str): Email del usuario
             password (str): Contraseña en texto plano
             
         Returns:
@@ -30,40 +31,52 @@ class UserService:
         """
         logger.info(f'Registrando usuario en servicio: {username}')
         
-        # Validar si el usuario ya existe
+        # Validar si el usuario ya existe por username
         existing_user = self.user_repository.get_by_username(username)
         if existing_user:
             logger.warning(f'Intento de registro con usuario existente: {username}')
             return {'error': 'Usuario ya existe', 'username': username}
+        
+        # Validar si el email ya existe
+        existing_email = self.user_repository.get_by_email(email)
+        if existing_email:
+            logger.warning(f'Intento de registro con email existente: {email}')
+            return {'error': 'Email ya existe', 'email': email}
         
         # Hash de la contraseña
         hashed_password = generate_password_hash(password)
         logger.info(f'Contraseña hasheada para usuario: {username}')
         
         # Crear el usuario
-        user = self.user_repository.create_user(username, hashed_password)
+        user = self.user_repository.create_user(username, email, hashed_password)
         logger.info(f'Usuario creado en servicio: {user.username} (ID: {user.id})')
         return user
 
-    def authenticate(self, username: str, password: str):
+    def authenticate(self, login_identifier: str, password: str):
         """
-        Autentica un usuario verificando sus credenciales
+        Autentica un usuario verificando sus credenciales (username o email)
         
         Args:
-            username (str): Nombre de usuario
+            login_identifier (str): Nombre de usuario o email
             password (str): Contraseña en texto plano
             
         Returns:
             User: Usuario autenticado o None si las credenciales son inválidas
         """
-        logger.info(f'Autenticando usuario en servicio: {username}')
+        logger.info(f'Autenticando usuario en servicio: {login_identifier}')
         
-        user = self.user_repository.get_by_username(username)
+        # Intentar buscar por username primero
+        user = self.user_repository.get_by_username(login_identifier)
+        
+        # Si no se encuentra, intentar buscar por email
+        if not user:
+            user = self.user_repository.get_by_email(login_identifier)
+        
         if user and check_password_hash(user.password, password):
-            logger.info(f'Autenticación exitosa en servicio: {username}')
+            logger.info(f'Autenticación exitosa en servicio: {login_identifier}')
             return user
         
-        logger.warning(f'Autenticación fallida en servicio: {username}')
+        logger.warning(f'Autenticación fallida en servicio: {login_identifier}')
         return None
 
     def get_user_by_id(self, user_id: int):

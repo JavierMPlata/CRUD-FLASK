@@ -2,16 +2,18 @@
 export interface User {
   id: number;
   username: string;
+  email: string;
   created_at?: string;
 }
 
 export interface RegisterData {
   username: string;
+  email: string;
   password: string;
 }
 
 export interface LoginData {
-  username: string;
+  login: string; // Can be username or email
   password: string;
 }
 
