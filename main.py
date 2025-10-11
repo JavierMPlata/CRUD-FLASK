@@ -51,8 +51,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configuración JWT
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'tu_clave_secreta_jwt_super_segura')
-# Configurar tiempo de expiración del token a 20 segundos
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=20)
+# Configurar tiempo de expiración del token a 1 hora
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=3600)
 
 # Inicializar extensiones
 db.init_app(app)

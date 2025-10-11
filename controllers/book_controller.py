@@ -119,6 +119,7 @@ def create_book():
         data = request.get_json() or {}
         
         logger.info(f'Creando libro (usuario ID: {current_user_id})')
+        logger.info(f'Datos recibidos: {data}')
         
         # Validar datos
         error = Book.validate_book_data(data)
