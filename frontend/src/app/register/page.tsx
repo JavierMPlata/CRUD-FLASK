@@ -4,9 +4,11 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import authService from '@/services/authService';
+import { useToast } from '@/components/ToastContext';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -52,12 +54,16 @@ export default function RegisterPage() {
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      const errorMessage = 'Las contraseñas no coinciden';
+      setError(errorMessage);
+      toast.error('Error de validación', errorMessage);
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      const errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+      setError(errorMessage);
+      toast.error('Error de validación', errorMessage);
       return;
     }
 
@@ -70,6 +76,8 @@ export default function RegisterPage() {
         password: formData.password,
       });
       
+      toast.success('¡Cuenta creada!', `Bienvenido ${formData.username}. Tu cuenta ha sido creada exitosamente.`);
+      
       // Auto login after registration
       await authService.login({
         login: formData.username,
@@ -79,7 +87,9 @@ export default function RegisterPage() {
       // Usar replace en lugar de push para reemplazar el historial
       router.replace('/books');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al registrar usuario');
+      const errorMessage = err instanceof Error ? err.message : 'Error al registrar usuario';
+      setError(errorMessage);
+      toast.error('Error de registro', errorMessage);
     } finally {
       setLoading(false);
     }

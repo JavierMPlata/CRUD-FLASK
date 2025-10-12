@@ -5,9 +5,13 @@ import { useRouter } from 'next/navigation';
 import authService from '@/services/authService';
 import bookService from '@/services/bookService';
 import { Book, CreateBookData } from '@/types/book.types';
+import ConfirmationModal from '@/components/ConfirmationModal';
+import { useToast } from '@/components/ToastContext';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function BooksPage() {
   const router = useRouter();
+  const toast = useToast();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -17,6 +21,19 @@ export default function BooksPage() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [tokenInfo, setTokenInfo] = useState<any>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type: 'delete' | 'logout' | 'warning';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning',
+  });
   const [formData, setFormData] = useState<CreateBookData>({
     title: '',
     author: '',
@@ -84,7 +101,9 @@ export default function BooksPage() {
       setBooks(response.books);
       setError('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar libros');
+      const errorMessage = err instanceof Error ? err.message : 'Error al cargar libros';
+      setError(errorMessage);
+      toast.error('Error al cargar libros', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -110,8 +129,18 @@ export default function BooksPage() {
   };
 
   const handleLogout = () => {
-    authService.logout();
-    router.push('/login');
+    setConfirmModal({
+      isOpen: true,
+      title: '¿Cerrar Sesión?',
+      message: '¿Estás seguro de que quieres cerrar tu sesión? Tendrás que volver a iniciar sesión para acceder a tu biblioteca.',
+      type: 'logout',
+      onConfirm: () => {
+        authService.logout();
+        toast.success('Sesión cerrada', 'Has cerrado sesión correctamente');
+        router.push('/login');
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      },
+    });
   };
 
   const handleOpenModal = (book?: Book) => {
@@ -163,47 +192,46 @@ export default function BooksPage() {
     try {
       if (editingBook) {
         await bookService.updateBook(editingBook.id, formData);
+        toast.success('¡Libro actualizado!', `"${formData.title}" ha sido actualizado exitosamente.`);
       } else {
         await bookService.createBook(formData);
+        toast.success('¡Libro agregado!', `"${formData.title}" ha sido agregado a tu biblioteca.`);
       }
       await loadBooks();
       handleCloseModal();
+      setError('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al guardar libro');
+      const errorMessage = err instanceof Error ? err.message : 'Error al guardar libro';
+      setError(errorMessage);
+      toast.error('Error al guardar libro', errorMessage);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('¿Estás seguro de eliminar este libro?')) return;
-
-    try {
-      await bookService.deleteBook(id);
-      await loadBooks();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al eliminar libro');
-    }
+  const handleDelete = (book: Book) => {
+    setConfirmModal({
+      isOpen: true,
+      title: '¿Eliminar Libro?',
+      message: `¿Estás seguro de que quieres eliminar "${book.title}" de tu biblioteca? Esta acción no se puede deshacer.`,
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          await bookService.deleteBook(book.id);
+          await loadBooks();
+          toast.success('¡Libro eliminado!', `"${book.title}" ha sido eliminado de tu biblioteca.`);
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Error al eliminar libro';
+          setError(errorMessage);
+          toast.error('Error al eliminar libro', errorMessage);
+        }
+      },
+    });
   };
 
   const currentUser = authService.getCurrentUser();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-indigo-900 dark:to-purple-900 relative overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-float"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-tr from-pink-400/20 to-indigo-600/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
-        </div>
-        <div className="relative z-10 flex flex-col items-center gap-6">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
-            <div className="absolute inset-0 animate-spin rounded-full h-16 w-16 border-r-4 border-l-4 border-purple-600" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-          </div>
-          <p className="text-xl font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Cargando biblioteca...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner fullScreen text="Cargando biblioteca..." size="xl" />;
   }
 
   return (
@@ -409,7 +437,7 @@ export default function BooksPage() {
                       <span className="hidden sm:inline">Editar</span>
                     </button>
                     <button
-                      onClick={() => handleDelete(book.id)}
+                      onClick={() => handleDelete(book)}
                       className="flex items-center justify-center gap-1 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-2 px-3 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg text-sm font-semibold"
                       title="Eliminar libro"
                     >
@@ -425,6 +453,19 @@ export default function BooksPage() {
           </div>
         )}
       </main>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.type === 'delete' ? 'Eliminar' : confirmModal.type === 'logout' ? 'Cerrar Sesión' : 'Confirmar'}
+        cancelText="Cancelar"
+        confirmButtonColor={confirmModal.type === 'delete' ? 'red' : confirmModal.type === 'logout' ? 'yellow' : 'blue'}
+        icon={confirmModal.type === 'delete' ? 'delete' : confirmModal.type === 'logout' ? 'warning' : 'info'}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+      />
 
       {/* Modal */}
       {showModal && (

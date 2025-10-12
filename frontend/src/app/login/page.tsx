@@ -4,9 +4,11 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import authService from '@/services/authService';
+import { useToast } from '@/components/ToastContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     login: '',
     password: '',
@@ -53,10 +55,13 @@ export default function LoginPage() {
 
     try {
       await authService.login(formData);
+      toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente');
       // Usar replace en lugar de push para reemplazar el historial
       router.replace('/books');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      const errorMessage = err instanceof Error ? err.message : 'Error al iniciar sesión';
+      setError(errorMessage);
+      toast.error('Error de inicio de sesión', errorMessage);
     } finally {
       setLoading(false);
     }
