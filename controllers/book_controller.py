@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from services.book_service import BookService
-from config.database import get_db_session
+from models.db import db
 from models.book_model import Book
 from datetime import datetime
 import logging
@@ -30,8 +30,8 @@ def get_books():
         current_user_id = get_jwt_identity()
         logger.info(f'Consultando libros (usuario ID: {current_user_id})')
         
-        # Crear servicio con nueva sesión
-        service = BookService(get_db_session())
+        # Crear servicio con la sesión de Flask-SQLAlchemy
+        service = BookService(db.session)
         books = service.get_all_books()
         
         logger.info(f'{len(books)} libros encontrados')
@@ -66,8 +66,8 @@ def get_book(book_id):
         current_user_id = get_jwt_identity()
         logger.info(f'Consultando libro ID {book_id} (usuario ID: {current_user_id})')
         
-        # Crear servicio con nueva sesión
-        service = BookService(get_db_session())
+        # Crear servicio con la sesión de Flask-SQLAlchemy
+        service = BookService(db.session)
         book = service.get_book_by_id(book_id)
         
         if book:
@@ -127,8 +127,8 @@ def create_book():
             logger.warning(f'Datos inválidos para crear libro: {error}')
             return jsonify({"error": error}), 400
         
-        # Crear servicio con nueva sesión
-        service = BookService(get_db_session())
+        # Crear servicio con la sesión de Flask-SQLAlchemy
+        service = BookService(db.session)
         new_book = service.create_book(data)
         
         logger.info(f'Libro creado exitosamente: {new_book.title} (ID: {new_book.id})')
@@ -186,8 +186,8 @@ def update_book(book_id):
             if data["published_year"] < 1000 or data["published_year"] > datetime.now().year + 10:
                 return jsonify({"error": f"Published year must be between 1000 and {datetime.now().year + 10}."}), 400
         
-        # Crear servicio con nueva sesión
-        service = BookService(get_db_session())
+        # Crear servicio con la sesión de Flask-SQLAlchemy
+        service = BookService(db.session)
         updated_book = service.update_book(book_id, data)
         
         if updated_book:
@@ -226,8 +226,8 @@ def delete_book(book_id):
         current_user_id = get_jwt_identity()
         logger.info(f'Eliminando libro ID {book_id} (usuario ID: {current_user_id})')
         
-        # Crear servicio con nueva sesión
-        service = BookService(get_db_session())
+        # Crear servicio con la sesión de Flask-SQLAlchemy
+        service = BookService(db.session)
         deleted_book = service.delete_book(book_id)
         
         if deleted_book:

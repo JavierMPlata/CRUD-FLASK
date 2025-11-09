@@ -33,11 +33,18 @@ def get_engine():
             conn.close()
             logging.info("Connected to MySQL database.")
             return engine
-        except OperationalError:
-            logging.warning("MySQL connection failed, falling back to SQLite.")
+        except OperationalError as e:
+            logging.warning(f"MySQL connection failed: {e}, falling back to SQLite.")
+        except Exception as e:
+            logging.warning(f"Unexpected error with MySQL: {e}, falling back to SQLite.")
         
-    engine = create_engine(SQLITE_URI)  # Removed echo=True
-    return engine
+    try:
+        engine = create_engine(SQLITE_URI)  # Removed echo=True
+        logging.info("Connected to SQLite database.")
+        return engine
+    except Exception as e:
+        logging.error(f"Failed to create SQLite engine: {e}")
+        raise
 
 engine = get_engine()
 Session = sessionmaker(bind=engine)

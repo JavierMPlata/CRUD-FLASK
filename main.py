@@ -41,11 +41,22 @@ app.config['API_VERSION'] = '1.0.0'
 # Primero intentar con MySQL, luego SQLite como fallback
 mysql_uri = os.getenv('MYSQL_URI')
 if mysql_uri:
-    app.config['SQLALCHEMY_DATABASE_URI'] = mysql_uri
-    logging.info("Usando configuración MySQL")
+    try:
+        app.config['SQLALCHEMY_DATABASE_URI'] = mysql_uri
+        logging.info("Intentando conectar con MySQL...")
+        # Verificar conexión MySQL con una prueba
+        from sqlalchemy import create_engine
+        test_engine = create_engine(mysql_uri)
+        test_conn = test_engine.connect()
+        test_conn.close()
+        logging.info("✓ Usando configuración MySQL")
+    except Exception as e:
+        logging.warning(f"✗ MySQL connection failed: {e}")
+        logging.info("✓ Cambiando a SQLite como fallback")
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books_users.db'
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books_users.db'
-    logging.info("Usando configuración SQLite como fallback")
+    logging.info("✓ Usando configuración SQLite (no se configuró MYSQL_URI)")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

@@ -6,7 +6,7 @@ Define los endpoints REST para registro, login y gestión de usuarios.
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from services.user_service import UserService
-from config.database import get_db_session
+from models.db import db
 from models.user_model import User
 import logging
 
@@ -50,8 +50,8 @@ def register():
         
         logger.info(f'Registrando usuario: {username}')
         
-        # Crear servicio con nueva sesión
-        service = UserService(get_db_session())
+        # Crear servicio con la sesión de Flask-SQLAlchemy
+        service = UserService(db.session)
         user = service.register_user(username, email, password)
         
         # Verificar si el usuario o email ya existe
@@ -100,8 +100,8 @@ def login():
         
         logger.info(f'Intento de login para: {login_identifier}')
         
-        # Crear servicio con nueva sesión
-        service = UserService(get_db_session())
+        # Crear servicio con la sesión de Flask-SQLAlchemy
+        service = UserService(db.session)
         user = service.authenticate(login_identifier, password)
         
         if user:
@@ -144,8 +144,8 @@ def get_users():
         current_user_id = get_jwt_identity()
         logger.info(f'Consultando listado de usuarios (solicitado por usuario ID: {current_user_id})')
         
-        # Crear servicio con nueva sesión
-        service = UserService(get_db_session())
+        # Crear servicio con la sesión de Flask-SQLAlchemy
+        service = UserService(db.session)
         users = service.get_all_users()
         
         logger.info(f'{len(users)} usuarios encontrados')
@@ -181,8 +181,8 @@ def get_profile():
         current_user_id = get_jwt_identity()
         logger.info(f'Consultando perfil de usuario ID: {current_user_id}')
         
-        # Crear servicio con nueva sesión
-        service = UserService(get_db_session())
+        # Crear servicio con la sesión de Flask-SQLAlchemy
+        service = UserService(db.session)
         user = service.get_user_by_id(int(current_user_id))
         
         if user:
