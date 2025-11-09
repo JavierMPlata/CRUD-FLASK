@@ -265,6 +265,16 @@ export default function BooksPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {/* Botón para ver clima */}
+              <button
+                onClick={() => router.push('/weather')}
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 group"
+                title="Ver clima"
+              >
+                <span className="text-xl">🌤️</span>
+                <span className="hidden sm:inline">Clima</span>
+              </button>
+
               {/* Botón para ver info del token */}
               <button 
                 onClick={() => setShowTokenInfo(true)} 

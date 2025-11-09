@@ -8,6 +8,7 @@ from datetime import timedelta
 
 from controllers.book_controller import book_bp
 from controllers.user_controller import user_bp
+from controllers.weather_controller import weather_bp
 from models.db import db
 
 # Cargar variables de entorno
@@ -97,6 +98,7 @@ def revoked_token_callback(jwt_header, jwt_payload):
 # Registrar blueprints
 app.register_blueprint(book_bp, url_prefix='/app')
 app.register_blueprint(user_bp, url_prefix='/auth')
+app.register_blueprint(weather_bp, url_prefix='/weather')
 
 @app.route('/')
 def index():
@@ -116,13 +118,19 @@ def index():
                 "POST /auth/login": "Iniciar sesión y obtener token JWT",
                 "GET /auth/profile": "Obtener perfil usuario (requiere JWT)",
                 "GET /auth/users": "Listar usuarios (requiere JWT)"
+            },
+            "weather": {
+                "GET /weather/current": "Obtener clima actual (requiere JWT, params: lat, lon, units, lang)",
+                "GET /weather/forecast/3hourly": "Obtener pronóstico cada 3 horas (requiere JWT, params: lat, lon, units, lang)",
+                "GET /weather/forecast/daily": "Obtener pronóstico diario (requiere JWT, params: lat, lon, days, units, lang)"
             }
         }, 
         "workflow": {
             "1": "Registra un usuario con POST /auth/register",
             "2": "Inicia sesión con POST /auth/login para obtener el token JWT",
             "3": "Usa el token en el header Authorization para acceder a los libros",
-            "4": "Realiza operaciones CRUD en libros con el token"
+            "4": "Realiza operaciones CRUD en libros con el token",
+            "5": "Consulta el clima usando /weather/* con el token JWT"
         }
     }
 

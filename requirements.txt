@@ -10,3 +10,4 @@ sqlalchemy
 flasgger
 PyYAML
 python-dotenv
+requests
